@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dino Game - Night Is Cold (Enhanced Graphics)</title>
+  <style>
+    body {
+      margin: 0;
+      background: #1a1a1a;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin: 20px;
+      color: #89cff0;
+    }
+
+    canvas {
+      background: url('https://upload.wikimedia.org/wikipedia/commons/7/7c/Starry_night_over_the_Rhone_-_Van_Gogh.jpg') no-repeat center center;
+      background-size: cover;
+      border: 2px solid #fff;
+    }
+
+    #instructions {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dino Game - Night Is Cold (Enhanced Graphics)</h1>
+  <div id="instructions">Press Space to Jump</div>
+  <canvas id="gameCanvas" width="800" height="200"></canvas>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Load images for the Dino and obstacles
+    const dinoImage = new Image();
+    const obstacleImage = new Image();
+    dinoImage.src = 'https://upload.wikimedia.org/wikipedia/commons/a/a7/Dinosaur_icon.svg';  // You can use any image you like
+    obstacleImage.src = 'https://upload.wikimedia.org/wikipedia/commons/4/4e/Brick_wall.png';  // Use an obstacle image
+
+    let dino = {
+      x: 50,
+      y: 150,
+      width: 40,
+      height: 40,
+      velocityY: 0,
+      gravity: 1.5,
+      jumpPower: -15, 
+      grounded: true
+    };
+
+    let obstacle = {
+      x: 800,
+      y: 160,
+      width: 40,
+      height: 40,
+      speed: 8,
+      gap: 100
+    };
+
+    let score = 0;
+    let gameOver = false;
+
+    function drawDino() {
+      ctx.drawImage(dinoImage, dino.x, dino.y, dino.width, dino.height);  // Draw Dino image
+    }
+
+    function drawObstacle() {
+      ctx.drawImage(obstacleImage, obstacle.x, obstacle.y, obstacle.width, obstacle.height);  // Draw obstacle image
+    }
+
+    function resetGame() {
+      obstacle.x = 800;
+      score = 0;
+      gameOver = false;
+      dino.y = 150;
+      dino.velocityY = 0;
+    }
+
+    function update() {
+      if (gameOver) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas
+
+      dino.velocityY += dino.gravity;
+      dino.y += dino.velocityY;
+      if (dino.y > 150) {
+        dino.y = 150;
+        dino.velocityY = 0;
+        dino.grounded = true;
+      }
+
+      obstacle.x -= obstacle.speed;
+      if (obstacle.x + obstacle.width < 0) {
+        obstacle.x = canvas.width + Math.random() * 300;
+        score++;
+        obstacle.speed += 0.2;
+        obstacle.gap -= 2;
+      }
+
+      if (
+        dino.x < obstacle.x + obstacle.width &&
+        dino.x + dino.width > obstacle.x &&
+        dino.y < obstacle.y + obstacle.height &&
+        dino.y + dino.height > obstacle.y
+      ) {
+        gameOver = true;
+        alert("Game Over! Your Score: " + score);
+        resetGame();
+      }
+
+      drawDino();
+      drawObstacle();
+
+      ctx.fillStyle = "white";
+      ctx.font = "20px Arial";
+      ctx.fillText("Score: " + score, 10, 20);
+
+      requestAnimationFrame(update);
+    }
+
+    document.addEventListener("keydown", function(e) {
+      if (e.code === "Space" && dino.grounded) {
+        dino.velocityY = dino.jumpPower;
+        dino.grounded = false;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>
